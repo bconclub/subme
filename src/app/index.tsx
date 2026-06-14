@@ -14,5 +14,5 @@ export default function Index() {
       </View>
     );
   }
-  return <Redirect href={onboardingDone ? '/(tabs)/inbox' : '/onboarding'} />;
+  return <Redirect href={onboardingDone ? '/(tabs)/dashboard' : '/onboarding'} />;
 }

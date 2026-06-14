@@ -29,7 +29,6 @@ import {
 import { CATEGORY_LABELS, FREE_PLAN_SUB_CAP } from '@/lib/types';
 import { formatDayMonth } from '@/lib/dates';
 import { formatINR, formatINRCompact } from '@/lib/format';
-import { getCatalogService } from '@/lib/catalog';
 import { useSubsStore } from '@/stores/subscriptions';
 import { useDetectionsStore } from '@/stores/detections';
 import { CATEGORY_COLORS, colors, gradients } from '@/theme/colors';
@@ -59,7 +58,7 @@ export default function Dashboard() {
   if (subs.length === 0) {
     return (
       <Screen>
-        <Text className="text-ink text-2xl font-bold pt-4">Dashboard</Text>
+        <Text className="text-ink text-2xl font-bold font-display pt-4">Dashboard</Text>
         <EmptyState
           icon="sparkles-outline"
           title="Nothing tracked yet"
@@ -88,7 +87,7 @@ export default function Dashboard() {
         <View className="flex-row items-center justify-between pt-4">
           <View>
             <Text className="text-faint text-xs">Good to see you</Text>
-            <Text className="text-ink text-2xl font-bold">Dashboard</Text>
+            <Text className="text-ink text-2xl font-bold font-display">Dashboard</Text>
           </View>
           <TouchableOpacity onPress={() => router.push('/subscription/add')} activeOpacity={0.85}>
             <LinearGradient
@@ -97,7 +96,7 @@ export default function Dashboard() {
               end={{ x: 1, y: 1 }}
               style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Ionicons name="add" size={26} color="#04201A" />
+              <Ionicons name="add" size={26} color="#0B1404" />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -110,27 +109,27 @@ export default function Dashboard() {
             end={{ x: 1, y: 1 }}
             style={{ padding: 22 }}
           >
-            <Text style={{ color: 'rgba(4,32,26,0.7)' }} className="text-xs font-semibold tracking-widest">
+            <Text style={{ color: 'rgba(11,20,4,0.7)' }} className="text-xs font-semibold tracking-widest">
               MONTHLY BURN
             </Text>
-            <Text style={{ color: '#042018' }} className="text-[44px] font-bold mt-1">
+            <Text style={{ color: '#0B1404' }} className="text-[44px] font-bold font-display mt-1">
               {formatINR(burn)}
             </Text>
             <View className="flex-row mt-4">
               <View className="pr-6">
-                <Text style={{ color: '#042018' }} className="text-base font-bold">
+                <Text style={{ color: '#0B1404' }} className="text-base font-bold">
                   {formatINRCompact(annual)}
                 </Text>
-                <Text style={{ color: 'rgba(4,32,26,0.65)' }} className="text-xs mt-0.5">
+                <Text style={{ color: 'rgba(11,20,4,0.65)' }} className="text-xs mt-0.5">
                   per year
                 </Text>
               </View>
-              <View style={{ width: 1, backgroundColor: 'rgba(4,32,26,0.2)' }} />
+              <View style={{ width: 1, backgroundColor: 'rgba(11,20,4,0.2)' }} />
               <View className="pl-6">
-                <Text style={{ color: '#042018' }} className="text-base font-bold">
+                <Text style={{ color: '#0B1404' }} className="text-base font-bold">
                   {active}
                 </Text>
-                <Text style={{ color: 'rgba(4,32,26,0.65)' }} className="text-xs mt-0.5">
+                <Text style={{ color: 'rgba(11,20,4,0.65)' }} className="text-xs mt-0.5">
                   active
                 </Text>
               </View>
@@ -222,11 +221,7 @@ export default function Dashboard() {
               <Card className="flex-row items-center" intensity={35}>
                 <ServiceLogo
                   name={s.service_name}
-                  color={
-                    (s.catalog_service_id &&
-                      getCatalogService(s.catalog_service_id)?.logo_color) ||
-                    colors.accentDim
-                  }
+                  catalogId={s.catalog_service_id}
                   size={38}
                 />
                 <View className="flex-1 ml-3">

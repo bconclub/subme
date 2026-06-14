@@ -9,7 +9,6 @@ import { EmptyState } from '@/components/EmptyState';
 import { renewalsForMonth, totalDueInMonth } from '@/lib/analytics';
 import { daysInMonth, parseISODate, todayIST, toISODate } from '@/lib/dates';
 import { formatINR } from '@/lib/format';
-import { getCatalogService } from '@/lib/catalog';
 import { useSubsStore } from '@/stores/subscriptions';
 import { colors } from '@/theme/colors';
 
@@ -52,7 +51,7 @@ export default function Calendar() {
 
   return (
     <Screen>
-      <Text className="text-ink text-2xl font-bold pt-4">Calendar</Text>
+      <Text className="text-ink text-2xl font-bold font-display pt-4">Calendar</Text>
 
       {!hasActive ? (
         <EmptyState
@@ -147,11 +146,7 @@ export default function Calendar() {
                 >
                   <ServiceLogo
                     name={s.service_name}
-                    color={
-                      (s.catalog_service_id &&
-                        getCatalogService(s.catalog_service_id)?.logo_color) ||
-                      colors.accentDim
-                    }
+                    catalogId={s.catalog_service_id}
                     size={36}
                   />
                   <Text className="text-ink font-medium flex-1 ml-3" numberOfLines={1}>

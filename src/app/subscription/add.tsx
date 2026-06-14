@@ -107,7 +107,7 @@ export default function AddSubscription() {
           <TouchableOpacity onPress={() => router.back()} className="pr-3 py-1">
             <Ionicons name="chevron-back" size={24} color={colors.ink} />
           </TouchableOpacity>
-          <Text className="text-ink text-xl font-bold">Add subscription</Text>
+          <Text className="text-ink text-xl font-bold font-display">Add subscription</Text>
         </View>
 
         <View className="flex-row bg-card rounded-xl p-1 mb-3">
@@ -149,7 +149,7 @@ export default function AddSubscription() {
                   onPress={() => pickService(s)}
                   className="flex-row items-center bg-card border border-border rounded-xl px-3 py-2.5 mb-2"
                 >
-                  <ServiceLogo name={s.name} color={s.logo_color} size={36} />
+                  <ServiceLogo name={s.name} catalogId={s.id} size={36} />
                   <View className="flex-1 ml-3">
                     <Text className="text-ink font-medium">{s.name}</Text>
                     <Text className="text-faint text-xs">
@@ -172,7 +172,7 @@ export default function AddSubscription() {
             <>
               {service ? (
                 <View className="flex-row items-center mb-3">
-                  <ServiceLogo name={service.name} color={service.logo_color} size={40} />
+                  <ServiceLogo name={service.name} catalogId={service.id} size={40} />
                   <Text className="text-ink text-lg font-bold ml-3 flex-1">
                     {service.name}
                   </Text>

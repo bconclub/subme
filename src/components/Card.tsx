@@ -28,7 +28,7 @@ export function Card({
         overflow: 'hidden',
         borderWidth: 1,
         borderColor: border,
-        backgroundColor: Platform.OS === 'web' ? 'rgba(18,26,36,0.7)' : 'transparent',
+        backgroundColor: Platform.OS === 'web' ? colors.glassFallback : 'transparent',
       }}
       {...rest}
     >

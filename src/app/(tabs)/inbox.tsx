@@ -18,7 +18,6 @@ import { ServiceLogo } from '@/components/ServiceLogo';
 import { CYCLE_LABELS } from '@/lib/types';
 import { formatINR } from '@/lib/format';
 import { formatFullDate } from '@/lib/dates';
-import { getCatalogService } from '@/lib/catalog';
 import type { PendingDetection } from '@/ingestion/engine';
 import { confirmDetection, runScan } from '@/ingestion/scan';
 import { useDetectionsStore } from '@/stores/detections';
@@ -65,7 +64,7 @@ export default function Inbox() {
         <View className="flex-row items-center justify-between pt-4">
           <View>
             <Text className="text-faint text-xs">Auto-detected</Text>
-            <Text className="text-ink text-2xl font-bold">Inbox</Text>
+            <Text className="text-ink text-2xl font-bold font-display">Synced</Text>
           </View>
           <TouchableOpacity onPress={scan} disabled={scanning} activeOpacity={0.85}>
             <LinearGradient
@@ -75,11 +74,11 @@ export default function Inbox() {
               style={{ borderRadius: 999, paddingHorizontal: 16, height: 44, flexDirection: 'row', alignItems: 'center' }}
             >
               {scanning ? (
-                <ActivityIndicator size="small" color="#04201A" />
+                <ActivityIndicator size="small" color="#0B1404" />
               ) : (
-                <Ionicons name="scan-outline" size={18} color="#04201A" />
+                <Ionicons name="scan-outline" size={18} color="#0B1404" />
               )}
-              <Text style={{ color: '#042018' }} className="font-bold text-sm ml-2">
+              <Text style={{ color: '#0B1404' }} className="font-bold text-sm ml-2">
                 {scanning ? 'Scanning' : 'Scan now'}
               </Text>
             </LinearGradient>
@@ -111,11 +110,7 @@ export default function Inbox() {
               <View key={d.key} className="mb-2.5">
                 <Card tone="strong">
                   <View className="flex-row items-center">
-                    <ServiceLogo
-                      name={d.service_name}
-                      color={getCatalogService(d.service_id)?.logo_color ?? colors.accentDim}
-                      size={44}
-                    />
+                    <ServiceLogo name={d.service_name} catalogId={d.service_id} size={44} />
                     <View className="flex-1 ml-3">
                       <Text className="text-ink font-bold text-[15px]">{d.service_name}</Text>
                       <Text className="text-muted text-xs mt-0.5">
@@ -165,7 +160,7 @@ export default function Inbox() {
                         end={{ x: 1, y: 1 }}
                         style={{ borderRadius: 999, paddingVertical: 10, alignItems: 'center' }}
                       >
-                        <Text style={{ color: '#042018' }} className="font-bold text-sm">
+                        <Text style={{ color: '#0B1404' }} className="font-bold text-sm">
                           Add to Subme
                         </Text>
                       </LinearGradient>

@@ -1,9 +1,21 @@
 import '../global.css';
 import { useEffect } from 'react';
+import { Text, TextInput } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  useFonts,
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { useSubsStore } from '@/stores/subscriptions';
 import { useSettingsStore } from '@/stores/settings';
 import { useDetectionsStore } from '@/stores/detections';
@@ -13,7 +25,28 @@ import { colors } from '@/theme/colors';
 
 const queryClient = new QueryClient();
 
+// Default every Text/TextInput to the brand body face (Plus Jakarta Sans).
+// Display/numeral moments opt into Space Grotesk via the `font-display` class.
+function applyDefaultFont() {
+  const T = Text as unknown as { defaultProps?: Record<string, unknown> };
+  T.defaultProps = T.defaultProps || {};
+  T.defaultProps.style = [{ fontFamily: 'PlusJakartaSans_400Regular' }, (T.defaultProps.style as object) ?? null];
+  const TI = TextInput as unknown as { defaultProps?: Record<string, unknown> };
+  TI.defaultProps = TI.defaultProps || {};
+  TI.defaultProps.style = [{ fontFamily: 'PlusJakartaSans_400Regular' }, (TI.defaultProps.style as object) ?? null];
+}
+
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    SpaceGrotesk_500Medium,
+    SpaceGrotesk_700Bold,
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+  });
+  if (fontsLoaded) applyDefaultFont();
+
   const hydrated = useSubsStore((s) => s.hydrated);
   const detectionsHydrated = useDetectionsStore((s) => s.hydrated);
   const onboardingDone = useSettingsStore((s) => s.onboardingDone);
@@ -42,6 +75,10 @@ export default function RootLayout() {
     if (!hydrated) return;
     rescheduleAllAlerts(subs, alertPrefs).catch(() => {});
   }, [subs, alertPrefs, hydrated]);
+
+  if (!fontsLoaded) {
+    return <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }} />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.bg }}>

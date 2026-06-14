@@ -38,7 +38,7 @@ export function Glass({
           borderColor: border,
           backgroundColor:
             // Web BlurView falls back weakly; give it a real translucent base.
-            Platform.OS === 'web' ? 'rgba(18,26,36,0.72)' : 'transparent',
+            Platform.OS === 'web' ? colors.glassFallback : 'transparent',
         },
         style,
       ]}

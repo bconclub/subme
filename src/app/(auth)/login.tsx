@@ -47,7 +47,7 @@ export default function Login() {
         <View className="w-14 h-14 rounded-2xl bg-accent items-center justify-center mb-6">
           <Ionicons name="wallet-outline" size={28} color={colors.bg} />
         </View>
-        <Text className="text-ink text-3xl font-bold">Sign in to Subme</Text>
+        <Text className="text-ink text-3xl font-bold font-display">Sign in to Subme</Text>
         <Text className="text-muted text-sm mt-2 leading-5">
           No passwords. We email you a 6-digit code.
         </Text>

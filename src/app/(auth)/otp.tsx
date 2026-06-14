@@ -35,7 +35,7 @@ export default function Otp() {
   return (
     <Screen>
       <View className="flex-1 justify-center">
-        <Text className="text-ink text-3xl font-bold">Check your email</Text>
+        <Text className="text-ink text-3xl font-bold font-display">Check your email</Text>
         <Text className="text-muted text-sm mt-2">
           We sent a 6-digit code to{' '}
           <Text className="text-ink font-semibold">{email}</Text>.

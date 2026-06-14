@@ -61,7 +61,7 @@ export default function Subscriptions() {
   return (
     <Screen padded={false}>
       <View className="px-4 pt-4 flex-row items-center justify-between">
-        <Text className="text-ink text-2xl font-bold">Subscriptions</Text>
+        <Text className="text-ink text-2xl font-bold font-display">Subscriptions</Text>
         <TouchableOpacity
           onPress={() => router.push('/subscription/add')}
           className="bg-accent rounded-full w-10 h-10 items-center justify-center"

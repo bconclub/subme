@@ -114,7 +114,7 @@ export default function SubscriptionDetail() {
           <TouchableOpacity onPress={() => router.back()} className="pr-3 py-1">
             <Ionicons name="chevron-back" size={24} color={colors.ink} />
           </TouchableOpacity>
-          <Text className="text-ink text-xl font-bold flex-1" numberOfLines={1}>
+          <Text className="text-ink text-xl font-bold font-display flex-1" numberOfLines={1}>
             {sub.service_name}
           </Text>
           <TouchableOpacity onPress={editing ? saveEdit : startEdit}>
@@ -123,16 +123,16 @@ export default function SubscriptionDetail() {
         </View>
 
         <Card className="items-center py-5">
-          <ServiceLogo name={sub.service_name} color={logoColor} size={56} />
+          <ServiceLogo name={sub.service_name} catalogId={sub.catalog_service_id} color={logoColor} size={56} />
           {editing ? (
             <TextInput
               value={price}
               onChangeText={setPrice}
               keyboardType="numeric"
-              className="text-ink text-3xl font-bold mt-3 border-b border-accent px-2 text-center"
+              className="text-ink text-3xl font-bold font-display mt-3 border-b border-accent px-2 text-center"
             />
           ) : (
-            <Text className="text-ink text-3xl font-bold mt-3">
+            <Text className="text-ink text-3xl font-bold font-display mt-3">
               {formatINR(sub.price_inr)}
             </Text>
           )}

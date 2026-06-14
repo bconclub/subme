@@ -74,7 +74,7 @@ export function SubRow({
         style={{ backgroundColor: 'rgba(14,20,28,0.55)' }}
         className="flex-row items-center px-4 py-3"
       >
-        <ServiceLogo name={sub.service_name} color={logoColor} />
+        <ServiceLogo name={sub.service_name} catalogId={sub.catalog_service_id} color={logoColor} />
         <View className="flex-1 ml-3">
           <Text className="text-ink font-semibold" numberOfLines={1}>
             {sub.service_name}

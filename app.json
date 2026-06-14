@@ -21,7 +21,10 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.READ_SMS", "android.permission.RECEIVE_SMS"]
+      "permissions": [
+        "android.permission.READ_SMS",
+        "android.permission.RECEIVE_SMS"
+      ]
     },
     "web": {
       "output": "single",
@@ -41,9 +44,10 @@
       [
         "expo-notifications",
         {
-          "color": "#34D399"
+          "color": "#C6F24E"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

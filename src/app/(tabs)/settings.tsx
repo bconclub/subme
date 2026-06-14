@@ -106,29 +106,30 @@ export default function Settings() {
   return (
     <Screen padded={false}>
       <ScrollView className="px-4" showsVerticalScrollIndicator={false}>
-        <Text className="text-ink text-2xl font-bold pt-4">Settings</Text>
+        <Text className="text-ink text-2xl font-bold font-display pt-4">Profile</Text>
 
-        {/* Plan */}
-        <Card className="mt-4 flex-row items-center">
-          <View className="flex-1">
-            <Text className="text-ink font-bold">Free plan</Text>
-            <Text className="text-muted text-xs mt-0.5">
-              {subs.length}/{FREE_PLAN_SUB_CAP} subscriptions tracked
+        {/* Profile header */}
+        <Card className="mt-4 flex-row items-center" tone="strong">
+          <View
+            style={{ backgroundColor: 'rgba(198,242,78,0.18)', borderColor: colors.accent }}
+            className="w-14 h-14 rounded-2xl border items-center justify-center"
+          >
+            <Text style={{ color: colors.accent }} className="text-xl font-bold font-display">
+              {(profile.full_name?.trim()[0] ?? 'Y').toUpperCase()}
             </Text>
           </View>
-          <TouchableOpacity
-            onPress={() =>
-              Alert.alert('Coming soon', 'Subme Pro - unlimited subscriptions, WhatsApp alerts, auto-detection. Payments land in a future update.')
-            }
-            className="bg-accent/15 border border-accent rounded-full px-4 py-2"
-          >
-            <Text className="text-accent font-semibold text-xs">Upgrade</Text>
-          </TouchableOpacity>
+          <View className="flex-1 ml-3">
+            <Text className="text-ink text-lg font-bold">
+              {profile.full_name?.trim() || 'Your profile'}
+            </Text>
+            <Text className="text-muted text-xs mt-0.5">
+              {profile.phone?.trim() || profile.email || 'Local account · on this phone'}
+            </Text>
+          </View>
         </Card>
 
-        {/* Profile */}
-        <Text className="text-ink text-base font-bold mt-5 mb-2">Profile</Text>
-        <Card>
+        {/* Profile fields */}
+        <Card className="mt-3">
           <Text className="text-faint text-xs mb-1.5">Name</Text>
           <TextInput
             value={name}
@@ -150,6 +151,25 @@ export default function Settings() {
             placeholderTextColor={colors.faint}
             className="bg-surface border border-border rounded-xl px-4 py-3 text-ink"
           />
+        </Card>
+
+        {/* Plan */}
+        <Text className="text-ink text-base font-bold mt-5 mb-2">Plan</Text>
+        <Card className="flex-row items-center">
+          <View className="flex-1">
+            <Text className="text-ink font-bold">Free plan</Text>
+            <Text className="text-muted text-xs mt-0.5">
+              {subs.length}/{FREE_PLAN_SUB_CAP} subscriptions tracked
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert('Coming soon', 'Subme Pro - unlimited subscriptions, WhatsApp alerts, auto-detection. Payments land in a future update.')
+            }
+            className="bg-accent/15 border border-accent rounded-full px-4 py-2"
+          >
+            <Text className="text-accent font-semibold text-xs">Upgrade</Text>
+          </TouchableOpacity>
         </Card>
 
         {/* Alerts */}

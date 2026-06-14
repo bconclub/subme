@@ -21,7 +21,7 @@ export function PlanPicker({
         {service ? (
           <>
             <View className="flex-row items-center mb-4">
-              <ServiceLogo name={service.name} color={service.logo_color} size={40} />
+              <ServiceLogo name={service.name} catalogId={service.id} size={40} />
               <View className="ml-3">
                 <Text className="text-ink text-lg font-bold">{service.name}</Text>
                 <Text className="text-muted text-xs">Pick your plan</Text>

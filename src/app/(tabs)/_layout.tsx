@@ -1,81 +1,25 @@
-import { Platform, View } from 'react-native';
+import type { ComponentProps } from 'react';
 import { Tabs } from 'expo-router';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
+import { CapsuleTabBar } from '@/components/CapsuleTabBar';
 import { colors } from '@/theme/colors';
+
+type CapsuleProps = ComponentProps<typeof CapsuleTabBar>;
 
 export default function TabsLayout() {
   return (
     <Tabs
-      initialRouteName="inbox"
+      initialRouteName="dashboard"
       screenOptions={{
         headerShown: false,
         sceneStyle: { backgroundColor: colors.bg },
-        tabBarStyle: {
-          position: 'absolute',
-          borderTopWidth: 0,
-          elevation: 0,
-          backgroundColor: Platform.OS === 'web' ? 'rgba(8,12,18,0.85)' : 'transparent',
-        },
-        tabBarBackground: () => (
-          <View style={{ flex: 1, overflow: 'hidden' }}>
-            <BlurView
-              intensity={60}
-              tint="dark"
-              style={{ flex: 1, borderTopWidth: 1, borderTopColor: colors.glassBorder }}
-            />
-          </View>
-        ),
-        tabBarActiveTintColor: colors.accent,
-        tabBarInactiveTintColor: colors.faint,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
+      tabBar={(props) => <CapsuleTabBar {...(props as unknown as CapsuleProps)} />}
     >
-      <Tabs.Screen
-        name="inbox"
-        options={{
-          title: 'Inbox',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sparkles-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="dashboard"
-        options={{
-          title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="grid-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="subscriptions"
-        options={{
-          title: 'Subs',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="albums-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="calendar"
-        options={{
-          title: 'Calendar',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
-          ),
-        }}
-      />
+      <Tabs.Screen name="inbox" />
+      <Tabs.Screen name="dashboard" />
+      <Tabs.Screen name="subscriptions" />
+      <Tabs.Screen name="calendar" />
+      <Tabs.Screen name="settings" />
     </Tabs>
   );
 }

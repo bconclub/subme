@@ -78,7 +78,7 @@ export default function Onboarding() {
           <View className="w-16 h-16 rounded-2xl bg-accent items-center justify-center mb-6">
             <Ionicons name="wallet-outline" size={32} color={colors.bg} />
           </View>
-          <Text className="text-ink text-3xl font-bold leading-10">
+          <Text className="text-ink text-3xl font-bold font-display leading-10">
             Every subscription.{'\n'}One clear picture.
           </Text>
           <Text className="text-muted text-base mt-4 leading-6">
@@ -94,7 +94,7 @@ export default function Onboarding() {
           <View className="w-16 h-16 rounded-2xl bg-info items-center justify-center mb-6">
             <Ionicons name="shield-checkmark-outline" size={32} color={colors.bg} />
           </View>
-          <Text className="text-ink text-3xl font-bold leading-10">
+          <Text className="text-ink text-3xl font-bold font-display leading-10">
             Your data stays yours.
           </Text>
           <Text className="text-muted text-base mt-4 leading-6">
@@ -120,7 +120,7 @@ export default function Onboarding() {
 
       {step === 2 && (
         <View className="flex-1 pt-16">
-          <Text className="text-ink text-2xl font-bold">What do you pay for?</Text>
+          <Text className="text-ink text-2xl font-bold font-display">What do you pay for?</Text>
           <Text className="text-muted text-sm mt-1 mb-4">
             Tap to add - prices auto-filled. You can fine-tune later.
           </Text>
@@ -176,7 +176,7 @@ export default function Onboarding() {
             end={{ x: 1, y: 1 }}
             style={{ borderRadius: 999, paddingVertical: 16, alignItems: 'center' }}
           >
-            <Text style={{ color: '#042018' }} className="font-bold text-base">
+            <Text style={{ color: '#0B1404' }} className="font-bold text-base">
               {step === 0 ? 'Get started' : step === 1 ? 'I like that' : subs.length > 0 ? `Done - track ${subs.length}` : 'Skip for now'}
             </Text>
           </LinearGradient>
