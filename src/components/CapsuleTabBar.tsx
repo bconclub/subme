@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
-import { Platform, Pressable, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
 import Animated, {
   interpolate,
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  type SharedValue,
 } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -38,26 +37,12 @@ const META: Record<
   settings: { label: 'Settings', on: 'settings', off: 'settings-outline' },
 };
 
-const SPRING = { damping: 18, stiffness: 170, mass: 0.7 };
+const COLLAPSED = 46;
+const EXPANDED = 132;
+const SPRING = { damping: 16, stiffness: 160, mass: 0.6 };
 
 export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-
-  // Fixed bar — the container never changes width. Active tab grows, the others
-  // shrink to compensate, so the sum stays constant.
-  const barW = Math.min(380, width - 24);
-  const rowW = barW - 12; // minus padding
-  const n = state.routes.length;
-  const activeW = Math.min(150, rowW * 0.42);
-  const restW = (rowW - activeW) / (n - 1);
-
-  // One animated cursor that springs to the active index; every tab derives its
-  // width / fill / label / icon from its distance to the cursor → fluid.
-  const sel = useSharedValue(state.index);
-  useEffect(() => {
-    sel.value = withSpring(state.index, SPRING);
-  }, [state.index, sel]);
 
   return (
     <View
@@ -75,7 +60,7 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          width: barW,
+          gap: 2,
           padding: 6,
           borderRadius: 999,
           overflow: 'hidden',
@@ -106,15 +91,7 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
             if (state.index !== i && !event.defaultPrevented) navigation.navigate(route.name);
           };
           return (
-            <TabItem
-              key={route.key}
-              index={i}
-              sel={sel}
-              meta={meta}
-              activeW={activeW}
-              restW={restW}
-              onPress={onPress}
-            />
+            <TabItem key={route.key} active={state.index === i} meta={meta} onPress={onPress} />
           );
         })}
       </View>
@@ -123,54 +100,45 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
 }
 
 function TabItem({
-  index,
-  sel,
+  active,
   meta,
-  activeW,
-  restW,
   onPress,
 }: {
-  index: number;
-  sel: SharedValue<number>;
+  active: boolean;
   meta: { label: string; on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap };
-  activeW: number;
-  restW: number;
   onPress: () => void;
 }) {
-  const container = useAnimatedStyle(() => {
-    const a = Math.max(0, 1 - Math.abs(sel.value - index));
-    return {
-      width: restW + (activeW - restW) * a,
-      backgroundColor: interpolateColor(a, [0, 1], ['rgba(198,242,78,0)', 'rgba(198,242,78,1)']),
-    };
-  });
-  const labelStyle = useAnimatedStyle(() => {
-    const a = Math.max(0, 1 - Math.abs(sel.value - index));
-    return { opacity: interpolate(a, [0.45, 1], [0, 1], 'clamp') };
-  });
-  const onIcon = useAnimatedStyle(() => ({
-    opacity: Math.max(0, 1 - Math.abs(sel.value - index)),
+  const p = useSharedValue(active ? 1 : 0);
+  useEffect(() => {
+    p.value = withSpring(active ? 1 : 0, SPRING);
+  }, [active, p]);
+
+  const pill = useAnimatedStyle(() => ({
+    width: COLLAPSED + (EXPANDED - COLLAPSED) * p.value,
+    backgroundColor: interpolateColor(p.value, [0, 1], ['rgba(198,242,78,0)', 'rgba(198,242,78,1)']),
   }));
-  const offIcon = useAnimatedStyle(() => ({
-    opacity: 1 - Math.max(0, 1 - Math.abs(sel.value - index)),
+  const labelStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(p.value, [0.4, 1], [0, 1], 'clamp'),
   }));
+  const onIcon = useAnimatedStyle(() => ({ opacity: p.value }));
+  const offIcon = useAnimatedStyle(() => ({ opacity: 1 - p.value }));
 
   return (
     <Pressable onPress={onPress}>
       <Animated.View
         style={[
           {
-            height: 44,
+            height: 46,
             borderRadius: 999,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
           },
-          container,
+          pill,
         ]}
       >
-        <View style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
           <Animated.View style={[{ position: 'absolute' }, offIcon]}>
             <Ionicons name={meta.off} size={22} color={colors.faint} />
           </Animated.View>
@@ -182,7 +150,7 @@ function TabItem({
           numberOfLines={1}
           style={[
             {
-              marginLeft: 8,
+              marginLeft: 7,
               color: colors.inkOnAccent,
               fontFamily: 'PlusJakartaSans_700Bold',
               fontSize: 13,

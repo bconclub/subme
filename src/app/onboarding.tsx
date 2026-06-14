@@ -79,12 +79,15 @@ export default function Onboarding() {
             <Ionicons name="wallet-outline" size={32} color={colors.bg} />
           </View>
           <Text className="text-ink text-3xl font-bold font-display leading-10">
-            Every subscription.{'\n'}One clear picture.
+            Every subscription{'\n'}in one place.
+          </Text>
+          <Text style={{ color: colors.accent }} className="text-2xl font-bold font-display mt-2">
+            No more surprises.
           </Text>
           <Text className="text-muted text-base mt-4 leading-6">
-            Netflix, Jio, Swiggy One, ChatGPT - India runs on subscriptions.
-            Subme shows what they cost you every month, and warns you before
-            each renewal hits.
+            Netflix, Jio, Swiggy One, ChatGPT - Subme watches every recurring
+            charge, shows your monthly burn, and warns you before each renewal
+            hits.
           </Text>
         </View>
       )}
