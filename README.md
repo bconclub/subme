@@ -1,56 +1,66 @@
-# Welcome to your Expo app 👋
+# Subme
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Subscription monitoring for India. Native Android (Expo / React Native), iOS later.
 
-## Get started
+**Current mode: local-only.** No backend is provisioned yet - all data lives in
+AsyncStorage on the device. The Supabase schema is ready in
+`supabase/migrations/` and the app flips to cloud mode the moment
+`EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_ANON_KEY` are set (see
+`.env.example`).
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run
 
 ```bash
-npm run reset-project
+npm install
+npm start            # Expo dev server (scan QR with Expo Go / dev client)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Quality gates
 
-### Other setup steps
+```bash
+npm run typecheck    # tsc --noEmit
+npm run lint         # expo lint
+npm test             # vitest - pure-TS lib (IST date math, analytics, detection, matching)
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Builds (EAS)
 
-## Learn more
+```bash
+eas build --profile preview-apk --platform android     # shareable APK
+eas build --profile production-aab --platform android  # Play Store bundle
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Profiles in `eas.json`: `dev` (dev client APK), `preview-apk` (internal APK,
+auto-increment), `production-aab`. Play listing prep: `PLAYSTORE.md`.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Architecture
 
-## Join the community
+- `src/app/` - expo-router screens: onboarding, 4 tabs (dashboard, subs,
+  calendar, settings), subscription add/detail, dormant `(auth)` pair for
+  Supabase OTP login.
+- `src/lib/` - pure TS, unit-tested: `dates.ts` (IST-anchored, month-end-safe
+  renewal math), `analytics.ts`, `detection.ts` + `matching.ts` (transaction →
+  service/subscription matching for future auto-ingestion), `catalog.ts`
+  (40+ Indian services, 2026 prices - source of truth; `npm run gen:seed`
+  regenerates the SQL seed), `notifications.ts` (9 AM IST local alerts).
+- `src/ingestion/types.ts` - `NormalizedTransaction` contract. Future SMS /
+  notification-listener / AA adapters normalize into this; detection and
+  matching already consume it.
+- `src/stores/` - Zustand + AsyncStorage persistence. Swap target for Supabase
+  once provisioned.
+- `native/` - landing zone for future Kotlin modules (notification listener
+  config plugin).
+- `supabase/migrations/` - full schema (RLS, profiles trigger) + generated
+  catalog seed. Not applied anywhere yet.
 
-Join our community of developers creating universal apps.
+## Deliberate deviations from the original brief
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **No Supabase project** - per owner decision (2026-06-12): existing free-tier
+  slots are occupied by other brands; keep everything local until a dedicated
+  project exists.
+- **Charts are hand-rolled SVG** (donut, sparkline) instead of victory-native -
+  avoids the Skia native dependency, keeps the APK small and the preview build
+  low-risk.
+- **GPFC #2 schema reconstructed** from the product brief (document wasn't
+  available); diff `supabase/migrations/0001_schema.sql` against the original
+  before applying.
