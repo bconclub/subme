@@ -1,15 +1,17 @@
-import { Platform, Pressable, View } from 'react-native';
+import { useEffect } from 'react';
+import { Platform, Pressable, View, useWindowDimensions } from 'react-native';
 import Animated, {
-  FadeIn,
-  FadeOut,
-  LinearTransition,
+  interpolate,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/colors';
-
-const SPRING = LinearTransition.springify().damping(20).stiffness(180).mass(0.7);
 
 interface TabRoute {
   key: string;
@@ -17,8 +19,6 @@ interface TabRoute {
 }
 interface CapsuleTabBarProps {
   state: { index: number; routes: TabRoute[] };
-  // Loosely typed: React Navigation's emit/navigate have richer generic
-  // signatures than we need here.
   navigation: {
     emit: (e: { type: 'tabPress'; target: string; canPreventDefault: boolean }) => {
       defaultPrevented?: boolean;
@@ -26,12 +26,6 @@ interface CapsuleTabBarProps {
     navigate: (name: string) => void;
   };
 }
-
-/**
- * Floating capsule tab bar (Subme design system). A centered dark-glass pill
- * hovering above content; the active tab expands into a lime pill (icon + label)
- * with a soft glow, inactive tabs are faint icons only.
- */
 
 const META: Record<
   string,
@@ -44,8 +38,26 @@ const META: Record<
   settings: { label: 'Settings', on: 'settings', off: 'settings-outline' },
 };
 
+const SPRING = { damping: 18, stiffness: 170, mass: 0.7 };
+
 export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+
+  // Fixed bar — the container never changes width. Active tab grows, the others
+  // shrink to compensate, so the sum stays constant.
+  const barW = Math.min(380, width - 24);
+  const rowW = barW - 12; // minus padding
+  const n = state.routes.length;
+  const activeW = Math.min(150, rowW * 0.42);
+  const restW = (rowW - activeW) / (n - 1);
+
+  // One animated cursor that springs to the active index; every tab derives its
+  // width / fill / label / icon from its distance to the cursor → fluid.
+  const sel = useSharedValue(state.index);
+  useEffect(() => {
+    sel.value = withSpring(state.index, SPRING);
+  }, [state.index, sel]);
 
   return (
     <View
@@ -59,12 +71,11 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
         paddingBottom: Math.max(insets.bottom, 12),
       }}
     >
-      <Animated.View
-        layout={SPRING}
+      <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 4,
+          width: barW,
           padding: 6,
           borderRadius: 999,
           overflow: 'hidden',
@@ -86,71 +97,102 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
         {state.routes.map((route, i) => {
           const meta = META[route.name];
           if (!meta) return null;
-          const focused = state.index === i;
-
           const onPress = () => {
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
               canPreventDefault: true,
             });
-            if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+            if (state.index !== i && !event.defaultPrevented) navigation.navigate(route.name);
           };
-
           return (
-            <Animated.View
+            <TabItem
               key={route.key}
-              layout={SPRING}
-              style={{
-                height: 44,
-                borderRadius: 999,
-                backgroundColor: focused ? colors.accent : 'transparent',
-                ...(focused
-                  ? {
-                      shadowColor: colors.accent,
-                      shadowOpacity: 0.5,
-                      shadowRadius: 12,
-                      shadowOffset: { width: 0, height: 0 },
-                    }
-                  : null),
-              }}
-            >
-              <Pressable
-                onPress={onPress}
-                android_ripple={{ color: 'rgba(255,255,255,0.08)', borderless: true }}
-                style={({ pressed }) => ({
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: focused ? 8 : 0,
-                  paddingHorizontal: focused ? 16 : 13,
-                  opacity: pressed ? 0.8 : 1,
-                })}
-              >
-                <Ionicons
-                  name={focused ? meta.on : meta.off}
-                  size={22}
-                  color={focused ? colors.inkOnAccent : colors.faint}
-                />
-                {focused ? (
-                  <Animated.Text
-                    entering={FadeIn.duration(160)}
-                    exiting={FadeOut.duration(90)}
-                    style={{
-                      color: colors.inkOnAccent,
-                      fontFamily: 'PlusJakartaSans_700Bold',
-                      fontSize: 13,
-                    }}
-                  >
-                    {meta.label}
-                  </Animated.Text>
-                ) : null}
-              </Pressable>
-            </Animated.View>
+              index={i}
+              sel={sel}
+              meta={meta}
+              activeW={activeW}
+              restW={restW}
+              onPress={onPress}
+            />
           );
         })}
-      </Animated.View>
+      </View>
     </View>
+  );
+}
+
+function TabItem({
+  index,
+  sel,
+  meta,
+  activeW,
+  restW,
+  onPress,
+}: {
+  index: number;
+  sel: SharedValue<number>;
+  meta: { label: string; on: keyof typeof Ionicons.glyphMap; off: keyof typeof Ionicons.glyphMap };
+  activeW: number;
+  restW: number;
+  onPress: () => void;
+}) {
+  const container = useAnimatedStyle(() => {
+    const a = Math.max(0, 1 - Math.abs(sel.value - index));
+    return {
+      width: restW + (activeW - restW) * a,
+      backgroundColor: interpolateColor(a, [0, 1], ['rgba(198,242,78,0)', 'rgba(198,242,78,1)']),
+    };
+  });
+  const labelStyle = useAnimatedStyle(() => {
+    const a = Math.max(0, 1 - Math.abs(sel.value - index));
+    return { opacity: interpolate(a, [0.45, 1], [0, 1], 'clamp') };
+  });
+  const onIcon = useAnimatedStyle(() => ({
+    opacity: Math.max(0, 1 - Math.abs(sel.value - index)),
+  }));
+  const offIcon = useAnimatedStyle(() => ({
+    opacity: 1 - Math.max(0, 1 - Math.abs(sel.value - index)),
+  }));
+
+  return (
+    <Pressable onPress={onPress}>
+      <Animated.View
+        style={[
+          {
+            height: 44,
+            borderRadius: 999,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+          },
+          container,
+        ]}
+      >
+        <View style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+          <Animated.View style={[{ position: 'absolute' }, offIcon]}>
+            <Ionicons name={meta.off} size={22} color={colors.faint} />
+          </Animated.View>
+          <Animated.View style={[{ position: 'absolute' }, onIcon]}>
+            <Ionicons name={meta.on} size={22} color={colors.inkOnAccent} />
+          </Animated.View>
+        </View>
+        <Animated.Text
+          numberOfLines={1}
+          style={[
+            {
+              marginLeft: 8,
+              color: colors.inkOnAccent,
+              fontFamily: 'PlusJakartaSans_700Bold',
+              fontSize: 13,
+            },
+            labelStyle,
+          ]}
+        >
+          {meta.label}
+        </Animated.Text>
+      </Animated.View>
+    </Pressable>
   );
 }

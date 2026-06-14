@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Screen } from '@/components/Screen';
@@ -86,7 +87,7 @@ export default function Calendar() {
 
             <View className="flex-row flex-wrap">
               {cells.map((day, i) => {
-                if (day === null) return <View key={i} className="w-[14.28%] h-11" />;
+                if (day === null) return <View key={i} className="w-[14.28%] h-14" />;
                 const iso = toISODate(ym.y, ym.m, day);
                 const hits = dayMap.get(iso);
                 const isToday = iso === today;
@@ -94,11 +95,12 @@ export default function Calendar() {
                 return (
                   <TouchableOpacity
                     key={i}
+                    activeOpacity={0.7}
                     onPress={() => setSelected(hits ? iso : null)}
-                    className="w-[14.28%] h-11 items-center justify-center"
+                    className="w-[14.28%] h-14 items-center pt-1"
                   >
                     <View
-                      className={`w-9 h-9 rounded-full items-center justify-center ${
+                      className={`w-7 h-7 rounded-full items-center justify-center ${
                         isSelected
                           ? 'bg-accent'
                           : isToday
@@ -107,20 +109,35 @@ export default function Calendar() {
                       }`}
                     >
                       <Text
-                        className={
+                        className={`text-[13px] ${
                           isSelected
                             ? 'text-bg font-bold'
                             : isToday
                               ? 'text-accent font-semibold'
                               : 'text-ink'
-                        }
+                        }`}
                       >
                         {day}
                       </Text>
-                      {hits && !isSelected ? (
-                        <View className="w-1.5 h-1.5 rounded-full bg-warn absolute bottom-0.5" />
-                      ) : null}
                     </View>
+                    {hits ? (
+                      <View className="flex-row items-center mt-1" style={{ height: 18 }}>
+                        {hits.renewals.slice(0, 2).map((s, k) => (
+                          <View key={s.id} style={{ marginLeft: k === 0 ? 0 : -6 }}>
+                            <ServiceLogo
+                              name={s.service_name}
+                              catalogId={s.catalog_service_id}
+                              size={16}
+                            />
+                          </View>
+                        ))}
+                        {hits.renewals.length > 2 ? (
+                          <Text className="text-faint text-[9px] ml-0.5">
+                            +{hits.renewals.length - 2}
+                          </Text>
+                        ) : null}
+                      </View>
+                    ) : null}
                   </TouchableOpacity>
                 );
               })}
@@ -133,7 +150,7 @@ export default function Calendar() {
           </Card>
 
           {selectedDay ? (
-            <>
+            <Animated.View key={selectedDay.date} entering={FadeInDown.duration(220).springify()}>
               <Text className="text-ink text-base font-bold mt-4 mb-2">
                 Due on {selectedDay.date.slice(8)} {MONTH_NAMES[ym.m - 1]} ·{' '}
                 {formatINR(selectedDay.total_inr)}
@@ -155,10 +172,10 @@ export default function Calendar() {
                   <Text className="text-ink font-bold">{formatINR(s.price_inr)}</Text>
                 </TouchableOpacity>
               ))}
-            </>
+            </Animated.View>
           ) : dayMap.size > 0 ? (
             <Text className="text-faint text-xs text-center mt-3">
-              Tap a dotted date to see what&apos;s due.
+              Tap a highlighted date to see what&apos;s due.
             </Text>
           ) : (
             <Text className="text-faint text-xs text-center mt-3">
