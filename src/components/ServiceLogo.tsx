@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { Image, Text, View } from 'react-native';
+import { SvgUri } from 'react-native-svg';
 import { getCatalogService } from '@/lib/catalog';
 import { colors } from '@/theme/colors';
 
 /**
- * Service logo — shows the real brand mark with graceful fallback.
- * Tries the brand's favicon (Google's icon service, by domain), then falls
- * back to a colored monogram of the first letter. Pass `catalogId` and it
- * resolves the domain + brand color from the catalog automatically; or pass
- * `domain` / `color` directly (custom subscriptions have neither → monogram).
+ * Service logo — real brand marks pulled live from the internet.
+ * Source order: Simple Icons (crisp brand-colored SVG glyph), then the site
+ * favicon (PNG), then a colored monogram. Pass `catalogId` and it resolves the
+ * Simple Icons slug, domain and brand color from the catalog. Custom
+ * subscriptions (no slug/domain) fall straight to the monogram.
  */
+
+type Source = { kind: 'svg' | 'img'; uri: string };
+
 export function ServiceLogo({
   name,
   catalogId,
@@ -24,14 +28,26 @@ export function ServiceLogo({
   size?: number;
 }) {
   const service = catalogId ? getCatalogService(catalogId) : undefined;
+  const slug = service?.slug;
   const resolvedDomain = domain ?? deriveDomain(service?.website);
   const resolvedColor = color ?? service?.logo_color ?? colors.accentDim;
 
-  // Track which domain failed to load, so changing service retries the new one
-  // without a state-resetting effect.
-  const [failedDomain, setFailedDomain] = useState<string | null>(null);
+  const sources: Source[] = [];
+  if (slug) sources.push({ kind: 'svg', uri: `https://cdn.simpleicons.org/${slug}` });
+  if (resolvedDomain)
+    sources.push({
+      kind: 'img',
+      uri: `https://www.google.com/s2/favicons?sz=128&domain=${resolvedDomain}`,
+    });
 
-  const showImg = !!resolvedDomain && failedDomain !== resolvedDomain;
+  const key = `${slug ?? ''}|${resolvedDomain ?? ''}`;
+  // Advance through sources on error, scoped to this service (no effect).
+  const [err, setErr] = useState<{ k: string; i: number }>({ k: '', i: 0 });
+  const idx = err.k === key ? err.i : 0;
+  const current = sources[idx];
+  const next = () => setErr({ k: key, i: idx + 1 });
+
+  const glyph = Math.round(size * 0.6);
   const initials = name
     .trim()
     .split(/\s+/)
@@ -48,25 +64,23 @@ export function ServiceLogo({
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        backgroundColor: showImg ? 'rgba(255,255,255,0.06)' : withAlpha(resolvedColor, 0.22),
+        backgroundColor: current ? '#FFFFFF' : withAlpha(resolvedColor, 0.22),
         borderWidth: 1,
-        borderColor: showImg ? colors.glassBorder : withAlpha(resolvedColor, 0.45),
+        borderColor: current ? colors.glassBorder : withAlpha(resolvedColor, 0.45),
       }}
     >
-      {showImg ? (
+      {current?.kind === 'svg' ? (
+        <SvgUri uri={current.uri} width={glyph} height={glyph} onError={next} />
+      ) : current?.kind === 'img' ? (
         <Image
-          source={{ uri: `https://www.google.com/s2/favicons?sz=128&domain=${resolvedDomain}` }}
-          onError={() => setFailedDomain(resolvedDomain ?? null)}
-          style={{ width: Math.round(size * 0.56), height: Math.round(size * 0.56) }}
+          source={{ uri: current.uri }}
+          onError={next}
+          style={{ width: glyph, height: glyph }}
           resizeMode="contain"
         />
       ) : (
         <Text
-          style={{
-            color: resolvedColor,
-            fontFamily: 'SpaceGrotesk_700Bold',
-            fontSize: size * 0.38,
-          }}
+          style={{ color: resolvedColor, fontFamily: 'SpaceGrotesk_700Bold', fontSize: size * 0.38 }}
         >
           {initials}
         </Text>
@@ -84,7 +98,6 @@ function deriveDomain(website?: string): string | undefined {
   }
 }
 
-/** Hex (#RRGGBB) → rgba string with the given alpha. */
 function withAlpha(hex: string, alpha: number): string {
   const m = hex.replace('#', '');
   if (m.length !== 6) return hex;

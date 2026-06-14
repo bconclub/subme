@@ -1,8 +1,15 @@
-import { Platform, Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, View } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+} from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/colors';
+
+const SPRING = LinearTransition.springify().damping(20).stiffness(180).mass(0.7);
 
 interface TabRoute {
   key: string;
@@ -52,7 +59,8 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
         paddingBottom: Math.max(insets.bottom, 12),
       }}
     >
-      <View
+      <Animated.View
+        layout={SPRING}
         style={{
           flexDirection: 'row',
           alignItems: 'center',
@@ -90,20 +98,13 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
           };
 
           return (
-            <Pressable
+            <Animated.View
               key={route.key}
-              onPress={onPress}
-              android_ripple={{ color: 'rgba(255,255,255,0.08)', borderless: true }}
-              style={({ pressed }) => ({
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: focused ? 8 : 0,
+              layout={SPRING}
+              style={{
                 height: 44,
-                paddingHorizontal: focused ? 16 : 12,
                 borderRadius: 999,
                 backgroundColor: focused ? colors.accent : 'transparent',
-                opacity: pressed ? 0.8 : 1,
                 ...(focused
                   ? {
                       shadowColor: colors.accent,
@@ -112,28 +113,44 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
                       shadowOffset: { width: 0, height: 0 },
                     }
                   : null),
-              })}
+              }}
             >
-              <Ionicons
-                name={focused ? meta.on : meta.off}
-                size={22}
-                color={focused ? colors.inkOnAccent : colors.faint}
-              />
-              {focused ? (
-                <Text
-                  style={{
-                    color: colors.inkOnAccent,
-                    fontFamily: 'PlusJakartaSans_700Bold',
-                    fontSize: 13,
-                  }}
-                >
-                  {meta.label}
-                </Text>
-              ) : null}
-            </Pressable>
+              <Pressable
+                onPress={onPress}
+                android_ripple={{ color: 'rgba(255,255,255,0.08)', borderless: true }}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: focused ? 8 : 0,
+                  paddingHorizontal: focused ? 16 : 13,
+                  opacity: pressed ? 0.8 : 1,
+                })}
+              >
+                <Ionicons
+                  name={focused ? meta.on : meta.off}
+                  size={22}
+                  color={focused ? colors.inkOnAccent : colors.faint}
+                />
+                {focused ? (
+                  <Animated.Text
+                    entering={FadeIn.duration(160)}
+                    exiting={FadeOut.duration(90)}
+                    style={{
+                      color: colors.inkOnAccent,
+                      fontFamily: 'PlusJakartaSans_700Bold',
+                      fontSize: 13,
+                    }}
+                  >
+                    {meta.label}
+                  </Animated.Text>
+                ) : null}
+              </Pressable>
+            </Animated.View>
           );
         })}
-      </View>
+      </Animated.View>
     </View>
   );
 }
