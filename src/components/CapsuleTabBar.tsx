@@ -37,8 +37,10 @@ const META: Record<
   settings: { label: 'Settings', on: 'settings', off: 'settings-outline' },
 };
 
-const COLLAPSED = 48;
-const EXPANDED = 116;
+const COLLAPSED = 44;
+const EXPANDED = 104;
+const ITEM_GAP = 8;
+const BAR_PADDING = 8;
 const SPRING = { damping: 16, stiffness: 160, mass: 0.6 };
 
 export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
@@ -60,8 +62,8 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 6,
-          padding: 6,
+          gap: ITEM_GAP,
+          padding: BAR_PADDING,
           borderRadius: 999,
           overflow: 'hidden',
           borderWidth: 1,
