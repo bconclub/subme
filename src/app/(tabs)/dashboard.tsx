@@ -145,7 +145,7 @@ export default function Dashboard() {
               title={`${pendingCount} new subscription${pendingCount > 1 ? 's' : ''} detected`}
               body="We spotted these on your account. Review and add with one tap."
               ctaLabel="Open inbox"
-              colorsPair={gradients.hero}
+              colorsPair={gradients.violet}
               onPress={() => router.push('/(tabs)/inbox')}
             />
           </View>

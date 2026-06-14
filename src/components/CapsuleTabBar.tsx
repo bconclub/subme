@@ -37,8 +37,8 @@ const META: Record<
   settings: { label: 'Settings', on: 'settings', off: 'settings-outline' },
 };
 
-const COLLAPSED = 46;
-const EXPANDED = 132;
+const COLLAPSED = 48;
+const EXPANDED = 116;
 const SPRING = { damping: 16, stiffness: 160, mass: 0.6 };
 
 export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
@@ -60,7 +60,7 @@ export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 2,
+          gap: 6,
           padding: 6,
           borderRadius: 999,
           overflow: 'hidden',
@@ -124,7 +124,7 @@ function TabItem({
   const offIcon = useAnimatedStyle(() => ({ opacity: 1 - p.value }));
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} hitSlop={6} style={{ borderRadius: 999 }}>
       <Animated.View
         style={[
           {
