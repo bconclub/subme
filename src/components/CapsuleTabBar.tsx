@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import Animated, {
-  interpolate,
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
@@ -37,10 +36,10 @@ const META: Record<
   settings: { label: 'Settings', on: 'settings', off: 'settings-outline' },
 };
 
-const COLLAPSED = 44;
-const EXPANDED = 104;
-const ITEM_GAP = 8;
-const BAR_PADDING = 8;
+const TAB_WIDTH = 54;
+const TAB_HEIGHT = 46;
+const ITEM_GAP = 10;
+const BAR_PADDING = 10;
 const SPRING = { damping: 16, stiffness: 160, mass: 0.6 };
 
 export function CapsuleTabBar({ state, navigation }: CapsuleTabBarProps) {
@@ -116,23 +115,33 @@ function TabItem({
   }, [active, p]);
 
   const pill = useAnimatedStyle(() => ({
-    width: COLLAPSED + (EXPANDED - COLLAPSED) * p.value,
+    transform: [{ scale: 0.94 + 0.06 * p.value }],
     backgroundColor: interpolateColor(p.value, [0, 1], ['rgba(198,242,78,0)', 'rgba(198,242,78,1)']),
-  }));
-  const labelStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(p.value, [0.4, 1], [0, 1], 'clamp'),
   }));
   const onIcon = useAnimatedStyle(() => ({ opacity: p.value }));
   const offIcon = useAnimatedStyle(() => ({ opacity: 1 - p.value }));
 
   return (
-    <Pressable onPress={onPress} hitSlop={6} style={{ borderRadius: 999 }}>
+    <Pressable
+      onPress={onPress}
+      hitSlop={6}
+      accessibilityRole="tab"
+      accessibilityState={{ selected: active }}
+      accessibilityLabel={meta.label}
+      style={{
+        width: TAB_WIDTH,
+        height: TAB_HEIGHT,
+        borderRadius: 999,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
       <Animated.View
         style={[
           {
-            height: 46,
+            width: TAB_WIDTH,
+            height: TAB_HEIGHT,
             borderRadius: 999,
-            flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             overflow: 'hidden',
@@ -148,20 +157,6 @@ function TabItem({
             <Ionicons name={meta.on} size={22} color={colors.inkOnAccent} />
           </Animated.View>
         </View>
-        <Animated.Text
-          numberOfLines={1}
-          style={[
-            {
-              marginLeft: 7,
-              color: colors.inkOnAccent,
-              fontFamily: 'PlusJakartaSans_700Bold',
-              fontSize: 13,
-            },
-            labelStyle,
-          ]}
-        >
-          {meta.label}
-        </Animated.Text>
       </Animated.View>
     </Pressable>
   );
